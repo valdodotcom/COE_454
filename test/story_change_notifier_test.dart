@@ -4,15 +4,15 @@ import 'package:flutter_testing_tutorial/story_change_notifier.dart';
 import 'package:flutter_testing_tutorial/story_service.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockNewsService extends Mock implements StoryService {}
+class MockStoryService extends Mock implements StoryService {}
 
 void main() {
   late StoryChangeNotifier sut;
-  late MockNewsService mockNewsService;
+  late MockStoryService mockStoryService;
 
   setUp(() {
-    mockNewsService = MockNewsService();
-    sut = StoryChangeNotifier(mockNewsService);
+    mockStoryService = MockStoryService();
+    sut = StoryChangeNotifier(mockStoryService);
   });
 
   test("The initial values are correct", () {
@@ -20,31 +20,31 @@ void main() {
     expect(sut.posts, []);
   });
 
-  group('getArticles', () {
-    final articlesFromService = [
+  group('getPosts', () {
+    final postsFromService = [
       Post(title: 'Test 1', content: 'Test 1 content'),
       Post(title: 'Test 2', content: 'Test 2 content'),
       Post(title: 'Test 3', content: 'Test 3 content'),
     ];
-    void arrangeNewsServiceReturns3Articles() {
-      when(() => mockNewsService.getPosts())
-          .thenAnswer((_) async => articlesFromService);
+    void arrangeStoryServiceReturns3Posts() {
+      when(() => mockStoryService.getPosts())
+          .thenAnswer((_) async => postsFromService);
     }
 
-    test("gets articles using the NewsService", () async {
-      arrangeNewsServiceReturns3Articles();
+    test("gets articles using the StoryService", () async {
+      arrangeStoryServiceReturns3Posts();
       await sut.getPosts();
-      verify(() => mockNewsService.getPosts()).called(1);
+      verify(() => mockStoryService.getPosts()).called(1);
     });
 
     test(
         """indicates loading of data, sets articles to the ones from the service, indicates that the data is not being loaded anymore""",
         () async {
-      arrangeNewsServiceReturns3Articles();
+      arrangeStoryServiceReturns3Posts();
       final future = sut.getPosts();
       expect(sut.isLoading, true);
       await future;
-      expect(sut.posts, articlesFromService);
+      expect(sut.posts, postsFromService);
       expect(sut.isLoading, false);
     });
   });
