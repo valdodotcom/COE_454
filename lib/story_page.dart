@@ -23,7 +23,7 @@ class _StoryPageState extends State<StoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Story Time App'),
+        title: const Text('Story Time'),
       ),
       body: Consumer<StoryChangeNotifier>(
         builder: (context, notifier, child) {
