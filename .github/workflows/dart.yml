@@ -1,60 +1,33 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Dart
-
+name: Builds
 on:
   push:
-    branches: [ "my_branch" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "my_branch" ]
+
+# Declare default permissions as read only.
+permissions: read-all
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    name: Build ${{ matrix.target }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ["apk --debug", "appbundle --debug", "ios --no-codesign", macos, web]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3 #plugin for setting up the java
-      
+      # Set up Flutter.
+      - name: Clone Flutter repository with master channel
+        uses: subosito/flutter-action@6c2e035f2692eeac890d854df95630c72673f130
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
-          java-version: '11'
-          
-      - uses: subosito/flutter-action@v2
+          channel: master
+      - run: flutter config --enable-macos-desktop
+      - run: flutter doctor -v
 
-        with:
-          flutter-version: ‘2.5.3’ #You can define the flutter version.
-          
-          
-      - run: flutter pub get #installing the plugins for the flutter project
-      - run: flutter test #running flutter test
-      - run: flutter build apk #building flutter apk
-      - run: flutter build appbundle #building flutter bundle
-          
-        
+      # Checkout gallery code and get packages.
+      - name: Checkout gallery code
+        uses: actions/checkout@d171c3b028d844f2bf14e9fdec0c58114451e4bf
+      - run: flutter pub get -v
 
-      # Note: This workflow uses the latest stable version of the Dart SDK.
-      # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      # - uses: dart-lang/setup-dart@v1
-      # - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
-
-      # - name: Install dependencies
-      #   run: flutter pub get
-
-      # Uncomment this step to verify the use of 'dart format' on each commit.
-      # - name: Verify formatting
-      #   run: dart format --output=none --set-exit-if-changed .
-
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
-      # - name: Analyze project source
-      #   run: dart analyze
-
-      # Your project will need to have tests in test/ and a dependency on
-      # package:test for this step to succeed. Note that Flutter projects will
-      # want to change this to 'flutter test'.
-      # - name: Run tests
-      #  run: dart test
+      - run: flutter build ${{ matrix.target }}
