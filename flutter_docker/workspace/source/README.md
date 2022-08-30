@@ -1,1 +1,1 @@
-Testing concepts learnt in software engineering class
+App that generates news stories
